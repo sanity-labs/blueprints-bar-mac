@@ -55,7 +55,7 @@ struct OperationDetailView: View {
                 VStack { Spacer(); Text("No logs available").font(.callout).foregroundStyle(.secondary); Spacer() }
                     .frame(maxWidth: .infinity)
             } else {
-                List(logs.reversed()) { log in
+                List(logs) { log in
                     LogRowView(log: log)
                 }
                 .listStyle(.plain)

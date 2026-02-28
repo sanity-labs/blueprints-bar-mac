@@ -31,7 +31,7 @@ struct StackDetailView: View {
                             .font(.system(.caption, design: .monospaced))
                             .fontWeight(.semibold)
                             .textSelection(.enabled)
-                        if let latest = latestOperation {
+                        if let latest = stack.latestOperation {
                             StatusIndicator(status: latest.status, size: 6)
                             Text(latest.id)
                                 .foregroundStyle(.tertiary)
@@ -145,23 +145,22 @@ struct StackDetailView: View {
 
     @ViewBuilder
     private var logsTab: some View {
-        if loadingLogs {
-            placeholder("Loading logs…")
-        } else if logs.isEmpty {
-            placeholder("No logs", icon: "text.alignleft")
-        } else {
-            List(logs.reversed()) { log in
-                LogRowView(log: log)
+        Group {
+            if loadingLogs {
+                placeholder("Loading logs…")
+            } else if logs.isEmpty {
+                placeholder("No logs", icon: "text.alignleft")
+            } else {
+                List(logs) { log in
+                    LogRowView(log: log)
+                }
+                .listStyle(.plain)
             }
-            .listStyle(.plain)
         }
+        .task { await loadLogs() }
     }
 
     // MARK: - Helpers
-
-    private var latestOperation: Operation? {
-        operations.first
-    }
 
     private func placeholder(_ text: String, icon: String? = nil) -> some View {
         VStack(spacing: 8) {
@@ -184,8 +183,7 @@ struct StackDetailView: View {
     private func loadAll() async {
         async let r: () = loadResources()
         async let o: () = loadOperations()
-        async let l: () = loadLogs()
-        _ = await (r, o, l)
+        _ = await (r, o)
     }
 
     private func loadResources() async {

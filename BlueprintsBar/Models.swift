@@ -59,16 +59,50 @@ struct Stack: Codable, Hashable, Identifiable, Sendable {
     let name: String
     let createdAt: Date
     let updatedAt: Date
+    let operations: [Operation]?
+
+    var latestOperation: Operation? { operations?.first }
 }
 
 struct Operation: Codable, Hashable, Identifiable, Sendable {
     let id: String
-    let stackId: String
-    let blueprintId: String
+    let stackId: String?
+    let blueprintId: String?
     let status: String
     let completedAt: Date?
     let createdAt: Date
     let updatedAt: Date
+
+    // API uses camelCase at top level but snake_case in inline objects
+    enum CodingKeys: String, CodingKey {
+        case id, status
+        case stackId, blueprintId
+        case completedAt, createdAt, updatedAt
+        case completed_at, created_at, updated_at
+        case stack_id, blueprint_id
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(String.self, forKey: .id)
+        status = try c.decode(String.self, forKey: .status)
+        stackId = try? c.decode(String.self, forKey: .stackId) ?? c.decode(String.self, forKey: .stack_id)
+        blueprintId = try? c.decode(String.self, forKey: .blueprintId) ?? c.decode(String.self, forKey: .blueprint_id)
+        completedAt = (try? c.decode(Date.self, forKey: .completedAt)) ?? (try? c.decode(Date.self, forKey: .completed_at))
+        createdAt = try (try? c.decode(Date.self, forKey: .createdAt)) ?? c.decode(Date.self, forKey: .created_at)
+        updatedAt = try (try? c.decode(Date.self, forKey: .updatedAt)) ?? c.decode(Date.self, forKey: .updated_at)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(id, forKey: .id)
+        try c.encode(status, forKey: .status)
+        try c.encodeIfPresent(stackId, forKey: .stackId)
+        try c.encodeIfPresent(blueprintId, forKey: .blueprintId)
+        try c.encodeIfPresent(completedAt, forKey: .completedAt)
+        try c.encode(createdAt, forKey: .createdAt)
+        try c.encode(updatedAt, forKey: .updatedAt)
+    }
 }
 
 struct Resource: Codable, Hashable, Identifiable, Sendable {
@@ -162,15 +196,23 @@ struct AnyCodable: Codable, Hashable, @unchecked Sendable {
 // MARK: - Date formatting
 
 extension Date {
+    private static let dateTimeFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd HH:mm"
+        return f
+    }()
+
+    private static let dateTimeSecondsFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        return f
+    }()
+
     /// "2026-02-27 08:15"
-    var dateTime: String {
-        formatted(.dateTime.year().month(.twoDigits).day(.twoDigits).hour().minute())
-    }
+    var dateTime: String { Self.dateTimeFormatter.string(from: self) }
 
     /// "2026-02-27 08:15:30"
-    var dateTimeSeconds: String {
-        formatted(.dateTime.year().month(.twoDigits).day(.twoDigits).hour().minute().second())
-    }
+    var dateTimeSeconds: String { Self.dateTimeSecondsFormatter.string(from: self) }
 }
 
 // Pretty-print JSON-like dictionaries

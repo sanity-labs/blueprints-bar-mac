@@ -24,7 +24,8 @@ struct LogRowView: View {
 
     private func levelColor(_ level: String) -> Color {
         switch level.lowercased() {
-        case "error", "fatal": .red
+        case "error": .red
+        case "fatal": .pink
         case "warn", "warning": .orange
         case "debug": .gray
         default: .primary
