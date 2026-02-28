@@ -40,18 +40,18 @@ enum APIEnvironment: String, CaseIterable {
     }
 }
 
-struct Organization: Codable, Hashable, Identifiable {
+struct Organization: Codable, Hashable, Identifiable, Sendable {
     let id: String
     let name: String
 }
 
-struct Project: Codable, Hashable, Identifiable {
+struct Project: Codable, Hashable, Identifiable, Sendable {
     let id: String
     let displayName: String
     let organizationId: String
 }
 
-struct Stack: Codable, Hashable, Identifiable {
+struct Stack: Codable, Hashable, Identifiable, Sendable {
     let id: String
     let scopeType: String
     let scopeId: String
@@ -61,7 +61,7 @@ struct Stack: Codable, Hashable, Identifiable {
     let updatedAt: Date
 }
 
-struct Operation: Codable, Hashable, Identifiable {
+struct Operation: Codable, Hashable, Identifiable, Sendable {
     let id: String
     let stackId: String
     let blueprintId: String
@@ -71,7 +71,7 @@ struct Operation: Codable, Hashable, Identifiable {
     let updatedAt: Date
 }
 
-struct Resource: Codable, Hashable, Identifiable {
+struct Resource: Codable, Hashable, Identifiable, Sendable {
     let id: String
     let name: String
     let stackId: String
@@ -85,7 +85,7 @@ struct Resource: Codable, Hashable, Identifiable {
     let updatedAt: Date
 }
 
-struct LogEntry: Codable, Hashable, Identifiable {
+struct LogEntry: Codable, Hashable, Identifiable, Sendable {
     let id: String
     let timestamp: Date
     let level: String?
@@ -100,7 +100,7 @@ struct LogEntry: Codable, Hashable, Identifiable {
 
 // MARK: - AnyCodable for arbitrary JSON values
 
-struct AnyCodable: Codable, Hashable {
+struct AnyCodable: Codable, Hashable, @unchecked Sendable {
     let value: Any
 
     init(_ value: Any) {
