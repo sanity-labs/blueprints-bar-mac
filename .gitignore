@@ -1,0 +1,15 @@
+scratch/
+
+# Xcode
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+DerivedData/
+*.xcworkspace/xcuserdata/
+xcuserdata/
+
+# Build
+build/
+*.app
+
+# macOS
+.DS_Store

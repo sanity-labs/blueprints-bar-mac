@@ -1,0 +1,74 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		3AE04E3926A94ABE96280D93 = {isa = PBXBuildFile; fileRef = 4A79048827CE4DE9AE206DC2; };
+		D69BD8E6E70C4D24861DE303 = {isa = PBXBuildFile; fileRef = A26FE3DFE0B740028432696E; };
+		96AEEDEE3A5C4847AFBB120A = {isa = PBXBuildFile; fileRef = 520A19EA2C494BAAB6FB3440; };
+		3C2DF578AC3C4B3CB1A0DD92 = {isa = PBXBuildFile; fileRef = 0567CC0CEDCC49EA9D648085; };
+		CB84156C081A464893C7E45C = {isa = PBXBuildFile; fileRef = 96761C177E27419FA8466E22; };
+		9544B9879C2040F682975ED5 = {isa = PBXBuildFile; fileRef = 6CA2B17239824406B9D0D93E; };
+		364F2C3D885E4AD8BCE9EF21 = {isa = PBXBuildFile; fileRef = 89B8228289E74D2E9E6A62FD; };
+		991A4E621C9E40FF8736A379 = {isa = PBXBuildFile; fileRef = 8EA13CA4E93B42DAB7DAFC35; };
+		D32954C366E04A78BBA1B22D = {isa = PBXBuildFile; fileRef = 27EE93B80CA5493DAC03A61B; };
+		707950316B6C42B0BF6BC041 = {isa = PBXBuildFile; fileRef = D995B557DAF84D3786D5616A; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		4A79048827CE4DE9AE206DC2 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BlueprintsBarApp.swift"; sourceTree = "<group>"; };
+		A26FE3DFE0B740028432696E = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppState.swift"; sourceTree = "<group>"; };
+		520A19EA2C494BAAB6FB3440 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Models.swift"; sourceTree = "<group>"; };
+		0567CC0CEDCC49EA9D648085 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BlueprintsClient.swift"; sourceTree = "<group>"; };
+		96761C177E27419FA8466E22 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentView.swift"; sourceTree = "<group>"; };
+		6CA2B17239824406B9D0D93E = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ScopePickerView.swift"; sourceTree = "<group>"; };
+		89B8228289E74D2E9E6A62FD = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StackListView.swift"; sourceTree = "<group>"; };
+		8EA13CA4E93B42DAB7DAFC35 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StackDetailView.swift"; sourceTree = "<group>"; };
+		27EE93B80CA5493DAC03A61B = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ResourceDetailView.swift"; sourceTree = "<group>"; };
+		D995B557DAF84D3786D5616A = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OperationDetailView.swift"; sourceTree = "<group>"; };
+		D196BE669D99430990ED6106 = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info.plist"; sourceTree = "<group>"; };
+		206F74801CAC404A9E55D558 = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "BlueprintsBar.entitlements"; sourceTree = "<group>"; };
+		848B639CAC91454D830769E1 = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BlueprintsBar.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2E3889C62E3A429E946A1845 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2F54E6C7976F4335B8A525EA = {isa = PBXGroup; children = (BF7F8BA57089416681853FC6, 2A1EFDFFBF62454997879AC8); sourceTree = "<group>"; };
+		2A1EFDFFBF62454997879AC8 = {isa = PBXGroup; children = (848B639CAC91454D830769E1); name = Products; sourceTree = "<group>"; };
+		BF7F8BA57089416681853FC6 = {isa = PBXGroup; children = (4A79048827CE4DE9AE206DC2, A26FE3DFE0B740028432696E, 520A19EA2C494BAAB6FB3440, 0567CC0CEDCC49EA9D648085, D196BE669D99430990ED6106, 206F74801CAC404A9E55D558, E6F75A9EBA314E5BBC517366); path = BlueprintsBar; sourceTree = "<group>"; };
+		E6F75A9EBA314E5BBC517366 = {isa = PBXGroup; children = (96761C177E27419FA8466E22, 6CA2B17239824406B9D0D93E, 89B8228289E74D2E9E6A62FD, 8EA13CA4E93B42DAB7DAFC35, 27EE93B80CA5493DAC03A61B, D995B557DAF84D3786D5616A); path = Views; sourceTree = "<group>"; };
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E2BC6D26DEF84CE382278F02 = {isa = PBXNativeTarget; buildConfigurationList = ADCEEB6C600D44B9B082AAE5; buildPhases = (94E15F496B7A4D5DB8D32D75, 2E3889C62E3A429E946A1845); buildRules = (); dependencies = (); name = BlueprintsBar; productName = BlueprintsBar; productReference = 848B639CAC91454D830769E1; productType = "com.apple.product-type.application"; };
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		49287A2E7B4A40FD9E8AA931 = {isa = PBXProject; buildConfigurationList = 41A628ABF79A4192A3C9E81A; compatibilityVersion = "Xcode 14.0"; developmentRegion = en; hasScannedForEncodings = 0; knownRegions = (en, Base); mainGroup = 2F54E6C7976F4335B8A525EA; productRefGroup = 2A1EFDFFBF62454997879AC8; projectDirPath = ""; projectRoot = ""; targets = (E2BC6D26DEF84CE382278F02); };
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		94E15F496B7A4D5DB8D32D75 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (3AE04E3926A94ABE96280D93, D69BD8E6E70C4D24861DE303, 96AEEDEE3A5C4847AFBB120A, 3C2DF578AC3C4B3CB1A0DD92, CB84156C081A464893C7E45C, 9544B9879C2040F682975ED5, 364F2C3D885E4AD8BCE9EF21, 991A4E621C9E40FF8736A379, D32954C366E04A78BBA1B22D, 707950316B6C42B0BF6BC041); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		867E4B25EA63479ABBC94E6A = {isa = XCBuildConfiguration; buildSettings = {ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; COPY_PHASE_STRIP = NO; DEBUG_INFORMATION_FORMAT = dwarf; GCC_OPTIMIZATION_LEVEL = 0; ONLY_ACTIVE_ARCH = YES; SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG"; SWIFT_OPTIMIZATION_LEVEL = "-Onone"; MACOSX_DEPLOYMENT_TARGET = 14.0; SDKROOT = macosx; }; name = Debug; };
+		199EDC07465F4635AFB12FA2 = {isa = XCBuildConfiguration; buildSettings = {ALWAYS_SEARCH_USER_PATHS = NO; CLANG_ENABLE_MODULES = YES; COPY_PHASE_STRIP = NO; DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym"; SWIFT_OPTIMIZATION_LEVEL = "-O"; MACOSX_DEPLOYMENT_TARGET = 14.0; SDKROOT = macosx; }; name = Release; };
+		3DF09918FA39494C8D8733F5 = {isa = XCBuildConfiguration; buildSettings = {ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; CODE_SIGN_ENTITLEMENTS = BlueprintsBar/BlueprintsBar.entitlements; COMBINE_HIDPI_IMAGES = YES; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_FILE = BlueprintsBar/Info.plist; INFOPLIST_KEY_LSUIElement = YES; INFOPLIST_KEY_NSHumanReadableCopyright = ""; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks"; MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = io.sanity.BlueprintsBar; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_EMIT_LOC_STRINGS = YES; SWIFT_VERSION = 6.0;}; name = Debug; };
+		DAC1166360D041D0B1D7EF6A = {isa = XCBuildConfiguration; buildSettings = {ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon; CODE_SIGN_ENTITLEMENTS = BlueprintsBar/BlueprintsBar.entitlements; COMBINE_HIDPI_IMAGES = YES; CURRENT_PROJECT_VERSION = 1; GENERATE_INFOPLIST_FILE = YES; INFOPLIST_FILE = BlueprintsBar/Info.plist; INFOPLIST_KEY_LSUIElement = YES; INFOPLIST_KEY_NSHumanReadableCopyright = ""; LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks"; MARKETING_VERSION = 1.0; PRODUCT_BUNDLE_IDENTIFIER = io.sanity.BlueprintsBar; PRODUCT_NAME = "$(TARGET_NAME)"; SWIFT_EMIT_LOC_STRINGS = YES; SWIFT_VERSION = 6.0;}; name = Release; };
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		41A628ABF79A4192A3C9E81A = {isa = XCConfigurationList; buildConfigurations = (867E4B25EA63479ABBC94E6A, 199EDC07465F4635AFB12FA2); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		ADCEEB6C600D44B9B082AAE5 = {isa = XCConfigurationList; buildConfigurations = (3DF09918FA39494C8D8733F5, DAC1166360D041D0B1D7EF6A); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+/* End XCConfigurationList section */
+
+	};
+	rootObject = 49287A2E7B4A40FD9E8AA931;
+}

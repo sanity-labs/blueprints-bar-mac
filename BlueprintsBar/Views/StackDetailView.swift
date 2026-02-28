@@ -1,0 +1,225 @@
+import SwiftUI
+
+enum DetailTab: String, CaseIterable {
+    case resources = "Resources"
+    case operations = "Operations"
+    case logs = "Logs"
+}
+
+struct StackDetailView: View {
+    @Environment(AppState.self) private var appState
+    let stack: Stack
+
+    @State private var selectedTab: DetailTab = .resources
+    @State private var resources: [Resource] = []
+    @State private var operations: [Operation] = []
+    @State private var logs: [LogEntry] = []
+    @State private var loadingResources = true
+    @State private var loadingOperations = true
+    @State private var loadingLogs = true
+    @State private var error: String?
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(stack.name)
+                        .font(.headline)
+                    Text(stack.id)
+                        .font(.system(.caption, design: .monospaced))
+                        .foregroundStyle(.secondary)
+                        .textSelection(.enabled)
+                    Text(stack.blueprintId)
+                        .font(.caption)
+                        .foregroundStyle(.quaternary)
+                }
+                Spacer()
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+
+            Picker("", selection: $selectedTab) {
+                ForEach(DetailTab.allCases, id: \.self) { tab in
+                    Text(tab.rawValue).tag(tab)
+                }
+            }
+            .pickerStyle(.segmented)
+            .padding(.horizontal, 12)
+            .padding(.bottom, 8)
+
+            Divider()
+
+            switch selectedTab {
+            case .resources: resourcesTab
+            case .operations: operationsTab
+            case .logs: logsTab
+            }
+        }
+        .task { await loadAll() }
+    }
+
+    // MARK: - Tabs
+
+    @ViewBuilder
+    private var resourcesTab: some View {
+        if loadingResources {
+            placeholder("Loading resources…")
+        } else if resources.isEmpty {
+            placeholder("No resources", icon: "cube.transparent")
+        } else {
+            List(resources) { resource in
+                Button {
+                    appState.navigationPath.append(.resourceDetail(resource))
+                } label: {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(resource.name)
+                            Text(resource.type)
+                                .font(.caption)
+                                .foregroundStyle(.tertiary)
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .foregroundStyle(.quaternary)
+                            .font(.caption)
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
+            .listStyle(.plain)
+        }
+    }
+
+    @ViewBuilder
+    private var operationsTab: some View {
+        if loadingOperations {
+            placeholder("Loading operations…")
+        } else if operations.isEmpty {
+            placeholder("No operations", icon: "gearshape")
+        } else {
+            List(operations) { op in
+                Button {
+                    appState.navigationPath.append(.operationDetail(stackID: stack.id, op))
+                } label: {
+                    HStack {
+                        Circle()
+                            .fill(statusColor(op.status))
+                            .frame(width: 8, height: 8)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(op.id)
+                                .font(.system(.body, design: .monospaced))
+                            Text(op.createdAt.formatted(date: .abbreviated, time: .shortened))
+                                .font(.caption)
+                                .foregroundStyle(.tertiary)
+                        }
+                        Spacer()
+                        Text(op.status.uppercased())
+                            .font(.caption2)
+                            .fontWeight(.medium)
+                            .foregroundStyle(statusColor(op.status))
+                        Image(systemName: "chevron.right")
+                            .foregroundStyle(.quaternary)
+                            .font(.caption)
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
+            .listStyle(.plain)
+        }
+    }
+
+    @ViewBuilder
+    private var logsTab: some View {
+        if loadingLogs {
+            placeholder("Loading logs…")
+        } else if logs.isEmpty {
+            placeholder("No logs", icon: "text.alignleft")
+        } else {
+            List(logs.reversed()) { log in
+                HStack(alignment: .top, spacing: 8) {
+                    Text(log.timestamp.formatted(date: .omitted, time: .standard))
+                        .font(.system(.caption, design: .monospaced))
+                        .foregroundStyle(.tertiary)
+                        .frame(width: 70, alignment: .leading)
+                    if let level = log.level {
+                        Text(level.uppercased())
+                            .font(.caption2)
+                            .fontWeight(.medium)
+                            .foregroundStyle(logLevelColor(level))
+                            .frame(width: 40, alignment: .leading)
+                    }
+                    Text(log.message)
+                        .font(.callout)
+                }
+            }
+            .listStyle(.plain)
+        }
+    }
+
+    // MARK: - Helpers
+
+    private func statusColor(_ status: String) -> Color {
+        switch status.lowercased() {
+        case "success", "completed": .green
+        case "failed": .red
+        case "in progress", "in_progress": .orange
+        case "queued": .blue
+        default: .gray
+        }
+    }
+
+    private func logLevelColor(_ level: String) -> Color {
+        switch level.lowercased() {
+        case "error": .red
+        case "warn", "warning": .orange
+        case "info": .blue
+        case "debug": .gray
+        default: .primary
+        }
+    }
+
+    private func placeholder(_ text: String, icon: String? = nil) -> some View {
+        VStack(spacing: 8) {
+            Spacer()
+            if let icon {
+                Image(systemName: icon)
+                    .font(.title2)
+                    .foregroundStyle(.secondary)
+            } else {
+                ProgressView()
+            }
+            Text(text)
+                .font(.callout)
+                .foregroundStyle(.secondary)
+            Spacer()
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private func loadAll() async {
+        async let r: () = loadResources()
+        async let o: () = loadOperations()
+        async let l: () = loadLogs()
+        _ = await (r, o, l)
+    }
+
+    private func loadResources() async {
+        do { resources = try await appState.client.listResources(stackID: stack.id) }
+        catch { self.error = error.localizedDescription }
+        loadingResources = false
+    }
+
+    private func loadOperations() async {
+        do { operations = try await appState.client.listOperations(stackID: stack.id) }
+        catch { self.error = error.localizedDescription }
+        loadingOperations = false
+    }
+
+    private func loadLogs() async {
+        do { logs = try await appState.client.listLogs(stackID: stack.id) }
+        catch { self.error = error.localizedDescription }
+        loadingLogs = false
+    }
+}
