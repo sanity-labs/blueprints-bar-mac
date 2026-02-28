@@ -33,7 +33,7 @@ final class AppState {
 
 enum Route: Hashable {
     case stackDetail(Stack)
-    case resourceDetail(Resource)
+    case resourceDetail(stackID: String, Resource)
     case operationDetail(stackID: String, Operation)
 }
 

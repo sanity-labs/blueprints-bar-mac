@@ -15,8 +15,8 @@ struct ContentView: View {
                 switch route {
                 case .stackDetail(let stack):
                     StackDetailView(stack: stack)
-                case .resourceDetail(let resource):
-                    ResourceDetailView(resource: resource)
+                case .resourceDetail(let stackID, let resource):
+                    ResourceDetailView(stackID: stackID, resource: resource)
                 case .operationDetail(let stackID, let operation):
                     OperationDetailView(stackID: stackID, operation: operation)
                 }

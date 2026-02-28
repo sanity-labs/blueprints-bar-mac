@@ -51,7 +51,7 @@ struct Project: Codable, Hashable, Identifiable, Sendable {
     let organizationId: String
 }
 
-struct Stack: Codable, Hashable, Identifiable, Sendable {
+struct Stack: Decodable, Hashable, Identifiable, Sendable {
     let id: String
     let scopeType: String
     let scopeId: String
@@ -59,12 +59,29 @@ struct Stack: Codable, Hashable, Identifiable, Sendable {
     let name: String
     let createdAt: Date
     let updatedAt: Date
-    let operations: [Operation]?
+    let recentOperation: Operation?
+    let resources: [Resource]?
 
-    var latestOperation: Operation? { operations?.first }
+    enum CodingKeys: String, CodingKey {
+        case id, scopeType, scopeId, blueprintId, name, createdAt, updatedAt
+        case recentOperation, resources
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(String.self, forKey: .id)
+        scopeType = try c.decode(String.self, forKey: .scopeType)
+        scopeId = try c.decode(String.self, forKey: .scopeId)
+        blueprintId = try c.decode(String.self, forKey: .blueprintId)
+        name = try c.decode(String.self, forKey: .name)
+        createdAt = try c.decode(Date.self, forKey: .createdAt)
+        updatedAt = try c.decode(Date.self, forKey: .updatedAt)
+        recentOperation = try? c.decode(Operation.self, forKey: .recentOperation)
+        resources = try? c.decode([Resource].self, forKey: .resources)
+    }
 }
 
-struct Operation: Codable, Hashable, Identifiable, Sendable {
+struct Operation: Decodable, Hashable, Identifiable, Sendable {
     let id: String
     let stackId: String?
     let blueprintId: String?
@@ -73,35 +90,42 @@ struct Operation: Codable, Hashable, Identifiable, Sendable {
     let createdAt: Date
     let updatedAt: Date
 
-    // API uses camelCase at top level but snake_case in inline objects
-    enum CodingKeys: String, CodingKey {
+    // The API returns camelCase from dedicated endpoints but snake_case
+    // in objects nested within other responses (e.g. stacks list).
+    // This decoder handles both conventions.
+    private enum CodingKeys: String, CodingKey {
         case id, status
-        case stackId, blueprintId
-        case completedAt, createdAt, updatedAt
-        case completed_at, created_at, updated_at
-        case stack_id, blueprint_id
+        case stackId, stack_id
+        case blueprintId, blueprint_id
+        case completedAt, completed_at
+        case createdAt, created_at
+        case updatedAt, updated_at
     }
 
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         id = try c.decode(String.self, forKey: .id)
         status = try c.decode(String.self, forKey: .status)
-        stackId = try? c.decode(String.self, forKey: .stackId) ?? c.decode(String.self, forKey: .stack_id)
-        blueprintId = try? c.decode(String.self, forKey: .blueprintId) ?? c.decode(String.self, forKey: .blueprint_id)
-        completedAt = (try? c.decode(Date.self, forKey: .completedAt)) ?? (try? c.decode(Date.self, forKey: .completed_at))
-        createdAt = try (try? c.decode(Date.self, forKey: .createdAt)) ?? c.decode(Date.self, forKey: .created_at)
-        updatedAt = try (try? c.decode(Date.self, forKey: .updatedAt)) ?? c.decode(Date.self, forKey: .updated_at)
-    }
 
-    func encode(to encoder: Encoder) throws {
-        var c = encoder.container(keyedBy: CodingKeys.self)
-        try c.encode(id, forKey: .id)
-        try c.encode(status, forKey: .status)
-        try c.encodeIfPresent(stackId, forKey: .stackId)
-        try c.encodeIfPresent(blueprintId, forKey: .blueprintId)
-        try c.encodeIfPresent(completedAt, forKey: .completedAt)
-        try c.encode(createdAt, forKey: .createdAt)
-        try c.encode(updatedAt, forKey: .updatedAt)
+        // Optional fields: try camelCase first, fall back to snake_case
+        stackId = (try? c.decode(String.self, forKey: .stackId))
+            ?? (try? c.decode(String.self, forKey: .stack_id))
+        blueprintId = (try? c.decode(String.self, forKey: .blueprintId))
+            ?? (try? c.decode(String.self, forKey: .blueprint_id))
+        completedAt = (try? c.decode(Date.self, forKey: .completedAt))
+            ?? (try? c.decode(Date.self, forKey: .completed_at))
+
+        // Required fields: try camelCase, throw on snake_case failure
+        if let date = try? c.decode(Date.self, forKey: .createdAt) {
+            createdAt = date
+        } else {
+            createdAt = try c.decode(Date.self, forKey: .created_at)
+        }
+        if let date = try? c.decode(Date.self, forKey: .updatedAt) {
+            updatedAt = date
+        } else {
+            updatedAt = try c.decode(Date.self, forKey: .updated_at)
+        }
     }
 }
 

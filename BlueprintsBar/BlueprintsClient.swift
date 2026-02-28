@@ -89,32 +89,18 @@ final class BlueprintsClient: Sendable {
         }
 
         var request = URLRequest(url: components.url!)
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.setValue(scopeType, forHTTPHeaderField: "x-sanity-scope-type")
         request.setValue(scopeID, forHTTPHeaderField: "x-sanity-scope-id")
-
-        let (data, response) = try await session.data(for: request)
-        let httpResponse = response as! HTTPURLResponse
-
-        guard httpResponse.statusCode == 200 else {
-            if let apiError = try? JSONDecoder().decode(APIError.self, from: data),
-               let message = apiError.message {
-                throw ClientError.api(statusCode: httpResponse.statusCode, message: message)
-            }
-            throw ClientError.api(
-                statusCode: httpResponse.statusCode,
-                message: String(data: data, encoding: .utf8) ?? "Unknown error"
-            )
-        }
-
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        return try decoder.decode(T.self, from: data)
+        return try await perform(request)
     }
 
     private func getManagement<T: Decodable>(_ path: String) async throws -> T {
-        let url = URL(string: environment.baseURL + path)!
-        var request = URLRequest(url: url)
+        let request = URLRequest(url: URL(string: environment.baseURL + path)!)
+        return try await perform(request)
+    }
+
+    private func perform<T: Decodable>(_ request: URLRequest) async throws -> T {
+        var request = request
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 
         let (data, response) = try await session.data(for: request)
@@ -162,12 +148,10 @@ final class BlueprintsClient: Sendable {
 
 enum ClientError: LocalizedError {
     case api(statusCode: Int, message: String)
-    case noToken
 
     var errorDescription: String? {
         switch self {
         case .api(let code, let message): "API error \(code): \(message)"
-        case .noToken: "No auth token found. Log in with the Sanity CLI first."
         }
     }
 }

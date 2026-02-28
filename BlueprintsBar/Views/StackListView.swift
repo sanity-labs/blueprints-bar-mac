@@ -42,9 +42,10 @@ struct StackListView: View {
                             .foregroundStyle(.tertiary)
                         }
                         Spacer()
-                        if let op = stack.latestOperation {
-                            StatusIndicator(status: op.status, size: 6)
-                        }
+                        // TODO: uncomment when stacks list includes recentOperation
+                        // if let op = stack.recentOperation {
+                        //     StatusIndicator(status: op.status, size: 6)
+                        // }
                         Image(systemName: "chevron.right")
                             .foregroundStyle(.quaternary)
                             .font(.caption)

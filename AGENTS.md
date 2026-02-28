@@ -2,11 +2,11 @@
 
 ## Project Overview
 
-BlueprintsBar is a native macOS menubar app for browsing Sanity Blueprints API data. It is **read-only** — no POST, PUT, or DELETE operations. The app reads auth tokens from the local Sanity CLI config at `~/.config/sanity/config.json` (production).
+BlueprintsBar is a native macOS menubar app for browsing Sanity Blueprints API data. It is **read-only** — no POST, PUT, or DELETE operations. The app reads auth tokens from the local Sanity CLI config at `~/.config/sanity/config.json`.
 
 ## Architecture
 
-Pure SwiftUI, macOS 14+ deployment target. The app uses two scenes:
+Pure SwiftUI, macOS 14+ (Sonoma) deployment target. The app uses two scenes:
 
 - `MenuBarExtra` with `.window` style — the primary popover UI
 - `Window` scene — a detachable standalone window opened via menu action
@@ -15,11 +15,19 @@ Both scenes render the same `ContentView` and share a single `AppState` (via `@O
 
 The API client (`BlueprintsClient`) is immutable and `Sendable`. Changing environment or scope creates a new client instance rather than mutating state.
 
+### Data loading pattern
+
+All API data is loaded lazily using the `.task {}` modifier on the view that needs it. Each tab in the stack detail view fetches its own data when selected, and re-fetches on every visit to ensure freshness. The single stack endpoint provides the header data (name, recent operation, resource count) while dedicated list endpoints provide the tab contents.
+
+Models use `Decodable` (not `Codable`) since the app is read-only and never encodes models back to JSON.
+
 ## Key Constraints
 
 **Minimal code footprint.** Prefer SwiftUI built-ins over custom styling. Let the framework handle materials, spacing, and colors. Every custom modifier is a maintenance burden — only add them when the default is clearly wrong.
 
-**Don't fight the framework.** We tried intercepting `MenuBarExtra` clicks with custom `NSStatusItem`/`NSPopover` — it worked but doubled the code and lost all system styling. The current approach accepts that the popover and detached window can coexist, because shared state keeps them in sync. Concessions that simplify code are better than clever hacks.
+**Don't fight the framework.** We tried intercepting `MenuBarExtra` clicks with custom `NSStatusItem`/`NSPopover` — it worked but doubled the code and lost all system styling. We also tried `NSEvent` monitors for right-click context menus on the menubar icon — not possible in pure SwiftUI, so we kept the existing menu structure. Concessions that simplify code are better than clever hacks.
+
+**SwiftUI only.** No AppKit escape hatches except `NSApplication.shared.activate()` (required for LSUIElement apps) and `NSApplication.shared.terminate()`. If a feature requires dropping to AppKit, reconsider whether it's needed.
 
 **LSUIElement app.** No dock icon. The menubar icon is the only entry point. `NSApplication.shared.activate()` is required when opening the detached window — LSUIElement apps don't activate automatically.
 
@@ -27,11 +35,11 @@ The API client (`BlueprintsClient`) is immutable and `Sendable`. Changing enviro
 
 **Swift 6 strict concurrency.** All model types must conform to `Sendable`. `AnyCodable` uses `@unchecked Sendable` because it wraps `Any` but only ever contains value types from JSON. The CI builds in Release mode (`-O`) which is stricter than Debug — always test with Release configuration before pushing.
 
-## API Details
+**Colorblind-friendly status indicators.** Shape encodes state (circle = success, square = failure), color reinforces it. Never rely on color alone.
 
-Two base URLs controlled by environment:
-- Production: `https://api.sanity.io`
-- Staging
+**Fixed timestamp format.** Use `yyyy-MM-dd HH:mm` (or `HH:mm:ss` for logs), not locale-dependent formatting.
+
+## API Details
 
 Blueprints endpoints are under `/vX/blueprints` with headers:
 - `Authorization: Bearer <token>`
@@ -40,7 +48,9 @@ Blueprints endpoints are under `/vX/blueprints` with headers:
 
 Management API (orgs, projects) uses `/v2021-06-07/` prefix, no scope headers.
 
-The staging environment is only shown in the UI when sanity-staging config exists on disk.
+The app supports multiple API environments. Additional environments are only shown when their corresponding CLI config directory exists on disk.
+
+**Note:** The API has an inconsistency where nested objects in some responses use `snake_case` keys while top-level fields use `camelCase`. The `Operation` model handles this with a custom decoder that tries both key conventions.
 
 ## Build and Release
 
@@ -54,13 +64,17 @@ Always verify Release builds before pushing — stricter Swift concurrency:
 xcodebuild -project BlueprintsBar.xcodeproj -scheme BlueprintsBar -configuration Release -derivedDataPath build build
 ```
 
-GitHub Actions builds and releases on `v*` tags. The app is unsigned — users clear quarantine with `xattr -cr` or System Settings. The Xcode project file is generated via Python script (see git history) when source files are added or removed.
+GitHub Actions builds and releases on `v*` tags. The app is unsigned — users clear quarantine with `xattr -cr` or System Settings.
+
+The Xcode project file (`project.pbxproj`) was generated via script. Adding or removing source files requires updating it manually or regenerating.
 
 ## Style Preferences
 
 - Lean on SwiftUI defaults for spacing, colors, and materials
 - Use semantic styles (`.secondary`, `.tertiary`, `.quaternary`) not custom colors
 - Keep views flat and declarative — avoid deep nesting or coordinator patterns
-- Async data loading with `.task {}` modifier, not `onAppear` + Task
+- Load data with `.task {}`, not `onAppear` + Task
 - Error and loading states as simple inline views, not separate components
 - Prefer computed properties over helper methods when no parameters needed
+- Don't make extra API calls that aren't justified — each endpoint fetch should serve a clear purpose
+- Always ask the user before git operations (commit, push, tag)
