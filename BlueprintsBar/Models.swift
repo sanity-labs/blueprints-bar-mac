@@ -159,6 +159,20 @@ struct AnyCodable: Codable, Hashable, @unchecked Sendable {
     }
 }
 
+// MARK: - Date formatting
+
+extension Date {
+    /// "2026-02-27 08:15"
+    var dateTime: String {
+        formatted(.dateTime.year().month(.twoDigits).day(.twoDigits).hour().minute())
+    }
+
+    /// "2026-02-27 08:15:30"
+    var dateTimeSeconds: String {
+        formatted(.dateTime.year().month(.twoDigits).day(.twoDigits).hour().minute().second())
+    }
+}
+
 // Pretty-print JSON-like dictionaries
 extension Dictionary where Key == String, Value == AnyCodable {
     func prettyPrinted() -> String {

@@ -27,8 +27,8 @@ struct ResourceDetailView: View {
                 Divider()
 
                 VStack(alignment: .leading, spacing: 4) {
-                    metadataRow("Created", resource.createdAt.formatted(date: .abbreviated, time: .shortened))
-                    metadataRow("Updated", resource.updatedAt.formatted(date: .abbreviated, time: .shortened))
+                    metadataRow("Created", resource.createdAt.dateTime)
+                    metadataRow("Updated", resource.updatedAt.dateTime)
                     if let externalId = resource.externalId {
                         metadataRow("External ID", externalId)
                     }

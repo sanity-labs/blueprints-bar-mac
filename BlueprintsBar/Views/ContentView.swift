@@ -24,7 +24,7 @@ struct ContentView: View {
                 StackListView()
             }
         }
-        .frame(width: 480, height: 560)
+        .frame(minWidth: 480, idealWidth: 480, minHeight: 560, idealHeight: 560)
     }
 
     private var headerBar: some View {

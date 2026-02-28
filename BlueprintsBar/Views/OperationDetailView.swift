@@ -12,28 +12,29 @@ struct OperationDetailView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 8) {
-                    Circle()
-                        .fill(statusColor(operation.status))
-                        .frame(width: 8, height: 8)
+                HStack(spacing: 6) {
+                    Text("Operation: \(operation.id)")
+                        .font(.system(.callout, design: .monospaced))
+                        .textSelection(.enabled)
+                    StatusIndicator(status: operation.status, size: 6)
                     Text(operation.status.uppercased())
                         .font(.caption)
                         .fontWeight(.semibold)
-                        .foregroundStyle(statusColor(operation.status))
+                        .foregroundStyle(.secondary)
                 }
-                HStack(spacing: 12) {
-                    Text("Created: \(operation.createdAt.formatted(date: .abbreviated, time: .shortened))")
+                HStack(spacing: 8) {
                     if let completed = operation.completedAt {
-                        Text("Completed: \(completed.formatted(date: .abbreviated, time: .shortened))")
+                        let duration = completed.timeIntervalSince(operation.createdAt)
+                        Text("\(Int(duration))s")
+                            .fontWeight(.medium)
+                    }
+                    Text("Created: \(operation.createdAt.dateTime)")
+                    if let completed = operation.completedAt {
+                        Text("Completed: \(completed.dateTime)")
                     }
                 }
                 .font(.caption)
                 .foregroundStyle(.tertiary)
-
-                Text(operation.id)
-                    .font(.system(.caption, design: .monospaced))
-                    .foregroundStyle(.tertiary)
-                    .textSelection(.enabled)
             }
             .padding(12)
 
@@ -55,47 +56,12 @@ struct OperationDetailView: View {
                     .frame(maxWidth: .infinity)
             } else {
                 List(logs.reversed()) { log in
-                    HStack(alignment: .top, spacing: 8) {
-                        Text(log.timestamp.formatted(date: .omitted, time: .standard))
-                            .font(.system(.caption, design: .monospaced))
-                            .foregroundStyle(.tertiary)
-                            .frame(width: 70, alignment: .leading)
-                        if let level = log.level {
-                            Text(level.uppercased())
-                                .font(.caption2)
-                                .fontWeight(.medium)
-                                .foregroundStyle(logLevelColor(level))
-                                .frame(width: 40, alignment: .leading)
-                        }
-                        Text(log.message)
-                            .font(.callout)
-                            .textSelection(.enabled)
-                    }
+                    LogRowView(log: log)
                 }
                 .listStyle(.plain)
             }
         }
         .task { await loadLogs() }
-    }
-
-    private func statusColor(_ status: String) -> Color {
-        switch status.lowercased() {
-        case "success", "completed": .green
-        case "failed": .red
-        case "in progress", "in_progress": .orange
-        case "queued": .blue
-        default: .gray
-        }
-    }
-
-    private func logLevelColor(_ level: String) -> Color {
-        switch level.lowercased() {
-        case "error": .red
-        case "warn", "warning": .orange
-        case "info": .blue
-        case "debug": .gray
-        default: .primary
-        }
     }
 
     private func loadLogs() async {

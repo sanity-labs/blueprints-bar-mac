@@ -2,9 +2,7 @@
 
 ## Project Overview
 
-BlueprintsBar is a native macOS menubar app for browsing Sanity Blueprints API data. It is **read-only** — no POST, PUT, or DELETE operations. The app reads auth tokens from the local Sanity CLI config at `~/.config/sanity/config.json` (production) or `~/.config/sanity-staging/config.json` (staging).
-
-Reference material lives in `scratch/` including a technical brief, capability overview, and OpenAPI spec. A sibling Go TUI implementation exists at `../blueprints-tui` for reference on API usage patterns, data shapes, and navigation flow.
+BlueprintsBar is a native macOS menubar app for browsing Sanity Blueprints API data. It is **read-only** — no POST, PUT, or DELETE operations. The app reads auth tokens from the local Sanity CLI config at `~/.config/sanity/config.json` (production).
 
 ## Architecture
 
@@ -33,7 +31,7 @@ The API client (`BlueprintsClient`) is immutable and `Sendable`. Changing enviro
 
 Two base URLs controlled by environment:
 - Production: `https://api.sanity.io`
-- Staging: `https://api.sanity.work`
+- Staging
 
 Blueprints endpoints are under `/vX/blueprints` with headers:
 - `Authorization: Bearer <token>`
@@ -42,7 +40,7 @@ Blueprints endpoints are under `/vX/blueprints` with headers:
 
 Management API (orgs, projects) uses `/v2021-06-07/` prefix, no scope headers.
 
-The staging environment is only shown in the UI when `~/.config/sanity-staging/` exists on disk.
+The staging environment is only shown in the UI when sanity-staging config exists on disk.
 
 ## Build and Release
 

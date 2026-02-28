@@ -23,15 +23,29 @@ struct StackDetailView: View {
         VStack(spacing: 0) {
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(stack.name)
-                        .font(.headline)
-                    Text(stack.id)
-                        .font(.system(.caption, design: .monospaced))
+                    Text("Stack: \(stack.name)")
+                        .font(.callout)
                         .foregroundStyle(.secondary)
-                        .textSelection(.enabled)
-                    Text(stack.blueprintId)
-                        .font(.caption)
-                        .foregroundStyle(.quaternary)
+                    HStack(spacing: 6) {
+                        Text(stack.id)
+                            .font(.system(.caption, design: .monospaced))
+                            .fontWeight(.semibold)
+                            .textSelection(.enabled)
+                        if let latest = latestOperation {
+                            StatusIndicator(status: latest.status, size: 6)
+                            Text(latest.id)
+                                .foregroundStyle(.tertiary)
+                            Text("·")
+                                .foregroundStyle(.quaternary)
+                            Text(latest.createdAt.dateTime)
+                                .foregroundStyle(.tertiary)
+                        }
+                        Text("·")
+                            .foregroundStyle(.quaternary)
+                        Text(stack.blueprintId)
+                            .foregroundStyle(.quaternary)
+                    }
+                    .font(.caption)
                 }
                 Spacer()
             }
@@ -44,6 +58,7 @@ struct StackDetailView: View {
                 }
             }
             .pickerStyle(.segmented)
+            .labelsHidden()
             .padding(.horizontal, 12)
             .padding(.bottom, 8)
 
@@ -103,21 +118,19 @@ struct StackDetailView: View {
                     appState.navigationPath.append(.operationDetail(stackID: stack.id, op))
                 } label: {
                     HStack {
-                        Circle()
-                            .fill(statusColor(op.status))
-                            .frame(width: 8, height: 8)
                         VStack(alignment: .leading, spacing: 2) {
                             Text(op.id)
                                 .font(.system(.body, design: .monospaced))
-                            Text(op.createdAt.formatted(date: .abbreviated, time: .shortened))
+                            Text(op.createdAt.dateTime)
                                 .font(.caption)
                                 .foregroundStyle(.tertiary)
                         }
                         Spacer()
+                        StatusIndicator(status: op.status, size: 6)
                         Text(op.status.uppercased())
                             .font(.caption2)
                             .fontWeight(.medium)
-                            .foregroundStyle(statusColor(op.status))
+                            .foregroundStyle(.secondary)
                         Image(systemName: "chevron.right")
                             .foregroundStyle(.quaternary)
                             .font(.caption)
@@ -138,21 +151,7 @@ struct StackDetailView: View {
             placeholder("No logs", icon: "text.alignleft")
         } else {
             List(logs.reversed()) { log in
-                HStack(alignment: .top, spacing: 8) {
-                    Text(log.timestamp.formatted(date: .omitted, time: .standard))
-                        .font(.system(.caption, design: .monospaced))
-                        .foregroundStyle(.tertiary)
-                        .frame(width: 70, alignment: .leading)
-                    if let level = log.level {
-                        Text(level.uppercased())
-                            .font(.caption2)
-                            .fontWeight(.medium)
-                            .foregroundStyle(logLevelColor(level))
-                            .frame(width: 40, alignment: .leading)
-                    }
-                    Text(log.message)
-                        .font(.callout)
-                }
+                LogRowView(log: log)
             }
             .listStyle(.plain)
         }
@@ -160,24 +159,8 @@ struct StackDetailView: View {
 
     // MARK: - Helpers
 
-    private func statusColor(_ status: String) -> Color {
-        switch status.lowercased() {
-        case "success", "completed": .green
-        case "failed": .red
-        case "in progress", "in_progress": .orange
-        case "queued": .blue
-        default: .gray
-        }
-    }
-
-    private func logLevelColor(_ level: String) -> Color {
-        switch level.lowercased() {
-        case "error": .red
-        case "warn", "warning": .orange
-        case "info": .blue
-        case "debug": .gray
-        default: .primary
-        }
+    private var latestOperation: Operation? {
+        operations.first
     }
 
     private func placeholder(_ text: String, icon: String? = nil) -> some View {
