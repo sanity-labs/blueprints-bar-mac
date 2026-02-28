@@ -37,18 +37,6 @@ struct ContentView: View {
 
             breadcrumb
             Spacer()
-
-            if !appState.isDetached {
-                Button {
-                    openWindow(id: "detached")
-                } label: {
-                    Image(systemName: "arrow.up.forward.square")
-                        .foregroundStyle(.secondary)
-                }
-                .buttonStyle(.plain)
-                .help("Open in separate window")
-            }
-
             environmentPicker
         }
         .padding(.horizontal, 12)
@@ -61,6 +49,11 @@ struct ContentView: View {
                 .foregroundStyle(.secondary)
         }
         .buttonStyle(.plain)
+    }
+
+    private func detachToWindow() {
+        openWindow(id: "detached")
+        NSApplication.shared.activate()
     }
 
     @ViewBuilder
@@ -102,7 +95,7 @@ struct ContentView: View {
 
     private var environmentPicker: some View {
         Menu {
-            ForEach(APIEnvironment.allCases, id: \.self) { env in
+            ForEach(APIEnvironment.available, id: \.self) { env in
                 Button {
                     appState.switchEnvironment(env)
                 } label: {
@@ -113,6 +106,10 @@ struct ContentView: View {
                         }
                     }
                 }
+            }
+            Divider()
+            Button("Open in Window") {
+                detachToWindow()
             }
             Divider()
             Button("Quit BlueprintsBar") {

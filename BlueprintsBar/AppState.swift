@@ -6,7 +6,6 @@ final class AppState {
     var client: BlueprintsClient
     var selectedScope: Scope?
     var navigationPath: [Route] = []
-    var isDetached = false
 
     init() {
         self.client = BlueprintsClient(environment: .production)

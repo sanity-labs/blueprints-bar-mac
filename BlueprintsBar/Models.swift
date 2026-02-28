@@ -24,9 +24,19 @@ enum APIEnvironment: String, CaseIterable {
 
     var label: String {
         switch self {
-        case .production: "Production"
-        case .staging: "Staging"
+        case .production: "sanity.io"
+        case .staging: "sanity.work"
         }
+    }
+
+    var configExists: Bool {
+        let home = FileManager.default.homeDirectoryForCurrentUser
+        let path = home.appendingPathComponent(".config").appendingPathComponent(configDirectory)
+        return FileManager.default.fileExists(atPath: path.path)
+    }
+
+    static var available: [APIEnvironment] {
+        allCases.filter(\.configExists)
     }
 }
 
