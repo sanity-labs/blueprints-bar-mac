@@ -3,9 +3,7 @@
 A macOS menubar app for browsing [Sanity Blueprints](https://www.sanity.io/docs/blueprints) stacks, resources, operations, and logs. Read-only.
 
 <p align="center">
-
-![BlueprintsBar](./BlueprintsBar.gif)
-
+<img src="./BlueprintsBar.gif">
 </p>
 
 ## Install
