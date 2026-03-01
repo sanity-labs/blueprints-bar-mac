@@ -2,6 +2,12 @@
 
 A macOS menubar app for browsing [Sanity Blueprints](https://www.sanity.io/docs/blueprints) stacks, resources, operations, and logs. Read-only.
 
+<p align="center">
+
+![BlueprintsBar](./BlueprintsBar.gif)
+
+</p>
+
 ## Install
 
 Download `BlueprintsBar.zip` from the [latest release](../../releases/latest), unzip, and move to `/Applications`.
