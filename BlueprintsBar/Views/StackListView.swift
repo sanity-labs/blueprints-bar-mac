@@ -35,17 +35,20 @@ struct StackListView: View {
                             Text(stack.name)
                             HStack(spacing: 6) {
                                 Text(stack.id)
+                                if let count = stack.displayResourceCount {
                                 Text("·")
+                                Text("\(count) resource\(count == 1 ? "" : "s")")
+                            }
+                            Text("·")
                                 Text(stack.blueprintId)
                             }
                             .font(.caption)
                             .foregroundStyle(.tertiary)
                         }
                         Spacer()
-                        // TODO: uncomment when stacks list includes recentOperation
-                        // if let op = stack.recentOperation {
-                        //     StatusIndicator(status: op.status, size: 6)
-                        // }
+                        if let op = stack.recentOperation {
+                            StatusIndicator(status: op.status, size: 6)
+                        }
                         Image(systemName: "chevron.right")
                             .foregroundStyle(.quaternary)
                             .font(.caption)

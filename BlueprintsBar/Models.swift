@@ -61,10 +61,16 @@ struct Stack: Decodable, Hashable, Identifiable, Sendable {
     let updatedAt: Date
     let recentOperation: Operation?
     let resources: [Resource]?
+    let resourceCount: Int?
+
+    /// Prefer the full array count when available, fall back to the summary count
+    var displayResourceCount: Int? {
+        resources?.count ?? resourceCount
+    }
 
     enum CodingKeys: String, CodingKey {
         case id, scopeType, scopeId, blueprintId, name, createdAt, updatedAt
-        case recentOperation, resources
+        case recentOperation, resources, resourceCount
     }
 
     init(from decoder: Decoder) throws {
@@ -78,6 +84,7 @@ struct Stack: Decodable, Hashable, Identifiable, Sendable {
         updatedAt = try c.decode(Date.self, forKey: .updatedAt)
         recentOperation = try? c.decode(Operation.self, forKey: .recentOperation)
         resources = try? c.decode([Resource].self, forKey: .resources)
+        resourceCount = try? c.decode(Int.self, forKey: .resourceCount)
     }
 }
 

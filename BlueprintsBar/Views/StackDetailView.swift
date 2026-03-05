@@ -57,7 +57,7 @@ struct StackDetailView: View {
                         .font(.system(.caption, design: .monospaced))
                         .fontWeight(.semibold)
                         .textSelection(.enabled)
-                    if let count = displayStack.resources?.count {
+                    if let count = displayStack.displayResourceCount {
                         Text("·")
                             .foregroundStyle(.quaternary)
                         Text("\(count) resource\(count == 1 ? "" : "s")")
