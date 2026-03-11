@@ -150,6 +150,30 @@ struct Resource: Codable, Hashable, Identifiable, Sendable {
     let updatedAt: Date
 }
 
+struct FunctionLog: Decodable, Identifiable, Hashable, Sendable {
+    let id: UUID
+    let time: Date
+    let requestId: String
+    let level: String
+    let message: String
+
+    enum CodingKeys: String, CodingKey {
+        case time, requestId, level, message
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = UUID()
+        time = try c.decode(Date.self, forKey: .time)
+        requestId = try c.decode(String.self, forKey: .requestId)
+        level = try c.decode(String.self, forKey: .level)
+        message = try c.decode(String.self, forKey: .message)
+    }
+
+    func hash(into hasher: inout Hasher) { hasher.combine(id) }
+    static func == (lhs: FunctionLog, rhs: FunctionLog) -> Bool { lhs.id == rhs.id }
+}
+
 struct LogEntry: Codable, Hashable, Identifiable, Sendable {
     let id: String
     let timestamp: Date

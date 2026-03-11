@@ -4,16 +4,19 @@ import SwiftUI
 final class AppState {
     var environment: APIEnvironment = .production
     var client: BlueprintsClient
+    var functionsClient: FunctionsClient
     var selectedScope: Scope?
     var navigationPath: [Route] = []
 
     init() {
         self.client = BlueprintsClient(environment: .production)
+        self.functionsClient = FunctionsClient(environment: .production)
     }
 
     func switchEnvironment(_ env: APIEnvironment) {
         environment = env
         client = BlueprintsClient(environment: env)
+        functionsClient = FunctionsClient(environment: env)
         selectedScope = nil
         navigationPath = []
     }
@@ -21,12 +24,14 @@ final class AppState {
     func selectScope(_ scope: Scope) {
         selectedScope = scope
         client = client.withScope(scope)
+        functionsClient = functionsClient.withScope(scope)
         navigationPath = []
     }
 
     func clearScope() {
         selectedScope = nil
         client = BlueprintsClient(environment: environment)
+        functionsClient = FunctionsClient(environment: environment)
         navigationPath = []
     }
 }

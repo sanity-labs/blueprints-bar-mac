@@ -27,7 +27,7 @@ Models use `Decodable` (not `Codable`) since the app is read-only and never enco
 
 **Don't fight the framework.** We tried intercepting `MenuBarExtra` clicks with custom `NSStatusItem`/`NSPopover` — it worked but doubled the code and lost all system styling. We also tried `NSEvent` monitors for right-click context menus on the menubar icon — not possible in pure SwiftUI, so we kept the existing menu structure. Concessions that simplify code are better than clever hacks.
 
-**SwiftUI only.** No AppKit escape hatches except `NSApplication.shared.activate()` (required for LSUIElement apps) and `NSApplication.shared.terminate()`. If a feature requires dropping to AppKit, reconsider whether it's needed.
+**SwiftUI only.** Avoid AppKit except where SwiftUI has no reasonable alternative. Current exceptions: `NSApplication.shared.activate()` (required for LSUIElement apps), `NSApplication.shared.terminate()`, and `NSPasteboard.general` (no SwiftUI clipboard API on macOS). If a feature requires deeper AppKit integration, reconsider whether it's needed.
 
 **LSUIElement app.** No dock icon. The menubar icon is the only entry point. `NSApplication.shared.activate()` is required when opening the detached window — LSUIElement apps don't activate automatically.
 

@@ -8,8 +8,14 @@ struct ResourceDetailView: View {
     @State private var fullResource: Resource?
     @State private var isLoading = true
     @State private var error: String?
+    @State private var functionLogs: [FunctionLog] = []
+    @State private var loadingLogs = true
+    @State private var logsError: String?
 
     private var displayResource: Resource { fullResource ?? resource }
+    private var isFunction: Bool {
+        displayResource.type.hasPrefix("sanity.function.") && displayResource.externalId != nil
+    }
 
     var body: some View {
         if isLoading {
@@ -53,9 +59,81 @@ struct ResourceDetailView: View {
                     metadataRow("Resource ID", displayResource.id)
                     metadataRow("Operation ID", displayResource.operationId)
                 }
+
+                if isFunction {
+                    Divider()
+                    HStack {
+                        sectionHeader("Recent Logs")
+                        Spacer()
+                        if !functionLogs.isEmpty {
+                            Button {
+                                NSPasteboard.general.clearContents()
+                                NSPasteboard.general.setString(formattedLogs, forType: .string)
+                            } label: {
+                                Image(systemName: "doc.on.doc")
+                            }
+                            .buttonStyle(.borderless)
+                            .help("Copy logs")
+                        }
+                        Button {
+                            Task { await loadFunctionLogs() }
+                        } label: {
+                            Image(systemName: "arrow.clockwise")
+                        }
+                        .buttonStyle(.borderless)
+                        .help("Reload logs")
+                        .disabled(loadingLogs)
+                    }
+                    functionLogsSection
+                }
             }
             .padding(12)
         }
+    }
+
+    private var functionLogsSection: some View {
+        Group {
+            if loadingLogs {
+                ProgressView()
+                    .frame(maxWidth: .infinity, minHeight: 40)
+            } else if let logsError {
+                Text(logsError)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } else if functionLogs.isEmpty {
+                Text("No recent logs")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, minHeight: 40)
+            } else {
+                ScrollView(.horizontal, showsIndicators: true) {
+                    Text(formattedLogs)
+                        .font(.system(.caption, design: .monospaced))
+                        .fixedSize(horizontal: true, vertical: false)
+                        .textSelection(.enabled)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(8)
+                .background(.fill.tertiary)
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+            }
+        }
+        .task(id: displayResource.externalId) { await loadFunctionLogs() }
+    }
+
+    private var formattedLogs: String {
+        functionLogs.map { log in
+            "\(log.time.dateTimeSeconds) \(log.level.uppercased()) \(log.message)"
+        }.joined(separator: "\n")
+    }
+
+    private func loadFunctionLogs() async {
+        guard let externalId = displayResource.externalId else { return }
+        loadingLogs = true
+        logsError = nil
+        do { functionLogs = try await appState.functionsClient.listLogs(functionID: externalId) }
+        catch { logsError = error.localizedDescription }
+        loadingLogs = false
     }
 
     private func loadResource() async {
