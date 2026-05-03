@@ -19,6 +19,10 @@ The API client (`BlueprintsClient`) is immutable and `Sendable`. Changing enviro
 
 All API data is loaded lazily using the `.task {}` modifier on the view that needs it. Each tab in the stack detail view fetches its own data when selected, and re-fetches on every visit to ensure freshness. The single stack endpoint provides the header data (name, recent operation, resource count) while dedicated list endpoints provide the tab contents.
 
+`OperationDetailView` runs two `.task {}` modifiers in parallel: one to fetch the single operation (for `systemMessage`/`userMessage`), one to fetch logs. The logs flow doesn't block on the operation fetch, and a failed operation refresh keeps the list-derived data.
+
+The stack list is sorted client-side by `recentOperation?.createdAt ?? createdAt`, descending. The API doesn't guarantee ordering by recent activity, so the sort happens in `StackListView.filteredStacks`.
+
 Models use `Decodable` (not `Codable`) since the app is read-only and never encodes models back to JSON.
 
 ## Key Constraints
@@ -50,7 +54,40 @@ Management API (orgs, projects) uses `/v2021-06-07/` prefix, no scope headers.
 
 The app supports multiple API environments. Additional environments are only shown when their corresponding CLI config directory exists on disk.
 
+`Operation` exposes `systemMessage` and `userMessage` from the single-operation endpoint. The operations list row uses these as its title (preferring `userMessage`, then the first non-empty line of `systemMessage`, then "No message" with `.tertiary` styling).
+
+`Resource` exposes `resolvedParameters` (parameters with templates expanded). Rendered in `ResourceDetailView` as a collapsed `DisclosureGroup`, only when non-nil and non-empty.
+
 **Note:** The API has an inconsistency where nested objects in some responses use `snake_case` keys while top-level fields use `camelCase`. The `Operation` model handles this with a custom decoder that tries both key conventions.
+
+## Display conventions
+
+Many list rows and metadata blocks render small `·`-separated runs of text. To keep the eye trained, follow this order.
+
+**Caption line, left to right:**
+
+1. `id` (monospaced)
+2. counts (e.g. "5 resources")
+3. kind / type (e.g. resource type string)
+4. timestamp (the row's primary event time)
+5. secondary refs (parent IDs, etc.)
+
+Captions don't use label prefixes. Fields are positional only.
+
+`blueprintId` is intentionally omitted from list-row captions and the stack header — users rarely need it for navigation. It surfaces in the operation detail view header (where it's the only place it's actionable context).
+
+**Right column of list rows, left to right:**
+
+1. duration (`Xs`) — only when paired with a known completion
+2. status indicator (shape via `StatusIndicator`)
+3. status text (uppercase caption, when meaningful)
+4. chevron (when navigable)
+
+**Header metadata** (e.g. `StackDetailView.header`) is freer than list rows but groups into clusters: identity (`id · count`) first, then the recent-operation cluster (`statusIndicator opId · createdAt · Xs`). Duration stays inside the operation cluster since the header has no list-row right column.
+
+**Detail views** (single-resource, single-operation) use labeled `metadataRow` pairs for created/updated/etc. The caption-line convention applies only to list rows and the stack header.
+
+**Log rows** use `.system(.caption, design: .monospaced)` for the message body. The timestamp/level header is `.caption2` monospaced. Logs render inside a `List` with `.listStyle(.plain)`; do not replace this with a `ScrollView`.
 
 ## Build and Release
 

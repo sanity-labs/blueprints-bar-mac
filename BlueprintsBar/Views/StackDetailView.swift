@@ -78,10 +78,6 @@ struct StackDetailView: View {
                                 .foregroundStyle(.tertiary)
                         }
                     }
-                    Text("·")
-                        .foregroundStyle(.quaternary)
-                    Text(displayStack.blueprintId)
-                        .foregroundStyle(.quaternary)
                 }
                 .font(.caption)
             }
@@ -119,9 +115,14 @@ struct StackDetailView: View {
                         HStack {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(resource.name)
-                                Text(resource.type)
-                                    .font(.caption)
-                                    .foregroundStyle(.tertiary)
+                                HStack(spacing: 6) {
+                                    Text(resource.id)
+                                        .font(.system(.caption, design: .monospaced))
+                                    Text("·")
+                                    Text(resource.type)
+                                }
+                                .font(.caption)
+                                .foregroundStyle(.tertiary)
                             }
                             Spacer()
                             Image(systemName: "chevron.right")
@@ -151,11 +152,15 @@ struct StackDetailView: View {
                     } label: {
                         HStack {
                             VStack(alignment: .leading, spacing: 2) {
-                                Text(op.id)
-                                    .font(.system(.body, design: .monospaced))
-                                Text(op.createdAt.dateTime)
-                                    .font(.caption)
-                                    .foregroundStyle(.tertiary)
+                                operationTitle(op)
+                                HStack(spacing: 6) {
+                                    Text(op.id)
+                                        .font(.system(.caption, design: .monospaced))
+                                    Text("·")
+                                    Text(op.createdAt.dateTime)
+                                }
+                                .font(.caption)
+                                .foregroundStyle(.tertiary)
                             }
                             Spacer()
                             if let completed = op.completedAt {
@@ -199,6 +204,25 @@ struct StackDetailView: View {
     }
 
     // MARK: - Helpers
+
+    @ViewBuilder
+    private func operationTitle(_ op: Operation) -> some View {
+        let user = op.userMessage?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let system = op.systemMessage?
+            .split(whereSeparator: \.isNewline)
+            .first
+            .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
+
+        if let user, !user.isEmpty {
+            Text(user).lineLimit(1)
+        } else if let system, !system.isEmpty {
+            Text(system).lineLimit(1)
+        } else {
+            Text("No message")
+                .foregroundStyle(.tertiary)
+                .lineLimit(1)
+        }
+    }
 
     private func errorPlaceholder(_ message: String) -> some View {
         VStack(spacing: 12) {

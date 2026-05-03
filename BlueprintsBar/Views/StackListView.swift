@@ -39,8 +39,6 @@ struct StackListView: View {
                                     Text("·")
                                     Text("\(count) resource\(count == 1 ? "" : "s")")
                                 }
-                                Text("·")
-                                Text(stack.blueprintId)
                                 if let opTime = stack.recentOperation?.createdAt {
                                     Text("·")
                                     Text(opTime.dateTime)
@@ -51,6 +49,11 @@ struct StackListView: View {
                         }
                         Spacer()
                         if let op = stack.recentOperation {
+                            if let completed = op.completedAt {
+                                Text("\(Int(completed.timeIntervalSince(op.createdAt)))s")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
                             StatusIndicator(status: op.status, size: 6)
                         }
                         Image(systemName: "chevron.right")

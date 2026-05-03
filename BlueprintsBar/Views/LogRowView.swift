@@ -17,7 +17,7 @@ struct LogRowView: View {
                 }
             }
             Text(log.message)
-                .font(.callout)
+                .font(.system(.caption, design: .monospaced))
                 .textSelection(.enabled)
         }
     }

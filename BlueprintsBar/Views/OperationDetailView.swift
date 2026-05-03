@@ -24,6 +24,14 @@ struct OperationDetailView: View {
                         .font(.caption)
                         .fontWeight(.semibold)
                         .foregroundStyle(.secondary)
+                    if let bp = displayOperation.blueprintId {
+                        Text("·")
+                            .font(.caption)
+                            .foregroundStyle(.quaternary)
+                        Text(bp)
+                            .font(.caption)
+                            .foregroundStyle(.tertiary)
+                    }
                 }
                 HStack(spacing: 8) {
                     if let completed = displayOperation.completedAt {
@@ -89,11 +97,8 @@ struct OperationDetailView: View {
                 if hasSystem, let system {
                     sectionHeader("System Message")
                     Text(system)
-                        .font(.system(.caption, design: .monospaced))
+                        .font(.callout)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(8)
-                        .background(.fill.tertiary)
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
                         .textSelection(.enabled)
                 }
             }
