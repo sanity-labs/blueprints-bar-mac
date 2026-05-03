@@ -93,6 +93,8 @@ struct Operation: Decodable, Hashable, Identifiable, Sendable {
     let stackId: String?
     let blueprintId: String?
     let status: String
+    let systemMessage: String?
+    let userMessage: String?
     let completedAt: Date?
     let createdAt: Date
     let updatedAt: Date
@@ -101,7 +103,7 @@ struct Operation: Decodable, Hashable, Identifiable, Sendable {
     // in objects nested within other responses (e.g. stacks list).
     // This decoder handles both conventions.
     private enum CodingKeys: String, CodingKey {
-        case id, status
+        case id, status, systemMessage, userMessage
         case stackId, stack_id
         case blueprintId, blueprint_id
         case completedAt, completed_at
@@ -113,6 +115,8 @@ struct Operation: Decodable, Hashable, Identifiable, Sendable {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         id = try c.decode(String.self, forKey: .id)
         status = try c.decode(String.self, forKey: .status)
+        systemMessage = try? c.decode(String.self, forKey: .systemMessage)
+        userMessage = try? c.decode(String.self, forKey: .userMessage)
 
         // Optional fields: try camelCase first, fall back to snake_case
         stackId = (try? c.decode(String.self, forKey: .stackId))
@@ -145,6 +149,7 @@ struct Resource: Codable, Hashable, Identifiable, Sendable {
     let externalId: String?
     let type: String
     let parameters: [String: AnyCodable]
+    let resolvedParameters: [String: AnyCodable]?
     let providerMetadata: [String: AnyCodable]
     let createdAt: Date
     let updatedAt: Date

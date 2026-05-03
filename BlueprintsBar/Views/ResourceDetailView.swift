@@ -43,6 +43,15 @@ struct ResourceDetailView: View {
                 sectionHeader("Parameters")
                 codeBlock(displayResource.parameters.prettyPrinted())
 
+                if let resolved = displayResource.resolvedParameters, !resolved.isEmpty {
+                    DisclosureGroup {
+                        codeBlock(resolved.prettyPrinted())
+                            .padding(.top, 4)
+                    } label: {
+                        sectionHeader("Resolved Parameters")
+                    }
+                }
+
                 if !displayResource.providerMetadata.isEmpty {
                     sectionHeader("Provider Metadata")
                     codeBlock(displayResource.providerMetadata.prettyPrinted())

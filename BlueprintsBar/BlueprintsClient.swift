@@ -66,6 +66,10 @@ final class BlueprintsClient: Sendable {
         return try await get("/stacks/\(stackID)/operations", params: params)
     }
 
+    func getOperation(stackID: String, operationID: String) async throws -> Operation {
+        try await get("/stacks/\(stackID)/operations/\(operationID)")
+    }
+
     func listLogs(
         stackID: String? = nil,
         operationID: String? = nil,

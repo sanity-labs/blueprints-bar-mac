@@ -36,11 +36,15 @@ struct StackListView: View {
                             HStack(spacing: 6) {
                                 Text(stack.id)
                                 if let count = stack.displayResourceCount {
+                                    Text("·")
+                                    Text("\(count) resource\(count == 1 ? "" : "s")")
+                                }
                                 Text("·")
-                                Text("\(count) resource\(count == 1 ? "" : "s")")
-                            }
-                            Text("·")
                                 Text(stack.blueprintId)
+                                if let opTime = stack.recentOperation?.createdAt {
+                                    Text("·")
+                                    Text(opTime.dateTime)
+                                }
                             }
                             .font(.caption)
                             .foregroundStyle(.tertiary)
@@ -73,8 +77,13 @@ struct StackListView: View {
     }
 
     private var filteredStacks: [Stack] {
-        guard !searchText.isEmpty else { return stacks }
-        return stacks.filter {
+        let sorted = stacks.sorted { lhs, rhs in
+            let lTime = lhs.recentOperation?.createdAt ?? lhs.createdAt
+            let rTime = rhs.recentOperation?.createdAt ?? rhs.createdAt
+            return lTime > rTime
+        }
+        guard !searchText.isEmpty else { return sorted }
+        return sorted.filter {
             $0.name.localizedCaseInsensitiveContains(searchText)
             || $0.id.localizedCaseInsensitiveContains(searchText)
             || $0.blueprintId.localizedCaseInsensitiveContains(searchText)

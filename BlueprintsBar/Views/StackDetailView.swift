@@ -71,6 +71,12 @@ struct StackDetailView: View {
                             .foregroundStyle(.quaternary)
                         Text(latest.createdAt.dateTime)
                             .foregroundStyle(.tertiary)
+                        if let completed = latest.completedAt {
+                            Text("·")
+                                .foregroundStyle(.quaternary)
+                            Text("\(Int(completed.timeIntervalSince(latest.createdAt)))s")
+                                .foregroundStyle(.tertiary)
+                        }
                     }
                     Text("·")
                         .foregroundStyle(.quaternary)
@@ -152,6 +158,11 @@ struct StackDetailView: View {
                                     .foregroundStyle(.tertiary)
                             }
                             Spacer()
+                            if let completed = op.completedAt {
+                                Text("\(Int(completed.timeIntervalSince(op.createdAt)))s")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
                             StatusIndicator(status: op.status, size: 6)
                             Text(op.status.uppercased())
                                 .font(.caption2)
